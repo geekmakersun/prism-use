@@ -223,7 +223,7 @@ function my_custom_theme_enqueue_block_editor_assets() {
         // 加载 Prism.js CSS
         wp_enqueue_style(
             'prism-css',
-            get_template_directory_uri() . '/assets/css/prism.css',
+            get_template_directory_uri() . '/css/prism.css',
             array(),
             '1.30.0'
         );
@@ -231,7 +231,7 @@ function my_custom_theme_enqueue_block_editor_assets() {
         // 加载行号插件 CSS
         wp_enqueue_style(
             'prism-line-numbers-css',
-            get_template_directory_uri() . '/assets/css/prism-line-numbers.css',
+            get_template_directory_uri() . '/css/prism-line-numbers.css',
             array( 'prism-css' ),
             '1.30.0'
         );
@@ -239,7 +239,7 @@ function my_custom_theme_enqueue_block_editor_assets() {
         // 加载 Prism.js 核心
         wp_enqueue_script(
             'prism-core',
-            get_template_directory_uri() . '/assets/js/prism-core.js',
+            get_template_directory_uri() . '/js/prism-core.js',
             array(),
             '1.30.0',
             true
@@ -248,7 +248,7 @@ function my_custom_theme_enqueue_block_editor_assets() {
         // 加载行号插件
         wp_enqueue_script(
             'prism-line-numbers',
-            get_template_directory_uri() . '/assets/js/prism-line-numbers.js',
+            get_template_directory_uri() . '/js/prism-line-numbers.js',
             array( 'prism-core' ),
             '1.30.0',
             true
@@ -257,7 +257,7 @@ function my_custom_theme_enqueue_block_editor_assets() {
         // 加载自动加载器插件
         wp_enqueue_script(
             'prism-autoloader',
-            get_template_directory_uri() . '/assets/js/prism-autoloader.js',
+            get_template_directory_uri() . '/js/prism-autoloader.js',
             array( 'prism-core' ),
             '1.30.0',
             true
@@ -275,7 +275,7 @@ function my_custom_theme_enqueue_frontend_assets() {
     // 加载 Prism.js CSS
     wp_enqueue_style(
         'prism-css',
-        get_template_directory_uri() . '/assets/css/prism.css',
+        get_template_directory_uri() . '/css/prism.css',
         array(),
         '1.30.0'
     );
@@ -283,7 +283,7 @@ function my_custom_theme_enqueue_frontend_assets() {
     // 加载行号插件 CSS
     wp_enqueue_style(
         'prism-line-numbers-css',
-        get_template_directory_uri() . '/assets/css/prism-line-numbers.css',
+        get_template_directory_uri() . '/css/prism-line-numbers.css',
         array( 'prism-css' ),
         '1.30.0'
     );
@@ -291,7 +291,7 @@ function my_custom_theme_enqueue_frontend_assets() {
     // 加载 Prism.js 核心
     wp_enqueue_script(
         'prism-core',
-        get_template_directory_uri() . '/assets/js/prism-core.js',
+        get_template_directory_uri() . '/js/prism-core.js',
         array(),
         '1.30.0',
         true
@@ -300,7 +300,7 @@ function my_custom_theme_enqueue_frontend_assets() {
     // 加载行号插件
     wp_enqueue_script(
         'prism-line-numbers',
-        get_template_directory_uri() . '/assets/js/prism-line-numbers.js',
+        get_template_directory_uri() . '/js/prism-line-numbers.js',
         array( 'prism-core' ),
         '1.30.0',
         true
@@ -309,7 +309,7 @@ function my_custom_theme_enqueue_frontend_assets() {
     // 加载自动加载器插件
     wp_enqueue_script(
         'prism-autoloader',
-        get_template_directory_uri() . '/assets/js/prism-autoloader.js',
+        get_template_directory_uri() . '/js/prism-autoloader.js',
         array( 'prism-core' ),
         '1.30.0',
         true
@@ -318,7 +318,7 @@ function my_custom_theme_enqueue_frontend_assets() {
     // 加载复制按钮插件
     wp_enqueue_script(
         'prism-copy-to-clipboard',
-        get_template_directory_uri() . '/assets/js/prism-copy-to-clipboard.js',
+        get_template_directory_uri() . '/js/prism-copy-to-clipboard.js',
         array( 'prism-core' ),
         '1.30.0',
         true
@@ -338,10 +338,10 @@ function my_custom_theme_add_custom_js() {
         // 配置 Prism autoloader 使用本地语言组件路径
         if (Prism.plugins && Prism.plugins.autoloader) {
             // 设置本地语言组件路径
-            Prism.plugins.autoloader.languages_path = '<?php echo get_template_directory_uri(); ?>/assets/js/components/';
+            Prism.plugins.autoloader.languages_path = '<?php echo get_template_directory_uri(); ?>/js/components/';
         }
         
-        // 为所有代码块添加行号类
+        // 为所有代码块添加行号类和复制按钮
         const preElements = document.querySelectorAll('pre[class*="language-"]');
         preElements.forEach(pre => {
             // 确保行号类存在
@@ -351,6 +351,52 @@ function my_custom_theme_add_custom_js() {
             
             // 确保有相对定位
             pre.style.position = 'relative';
+            
+            // 移除旧的复制按钮
+            const oldButtons = pre.querySelectorAll('.copy-btn');
+            oldButtons.forEach(btn => btn.remove());
+            
+            // 创建复制按钮
+            const copyBtn = document.createElement('button');
+            copyBtn.className = 'copy-btn';
+            copyBtn.innerText = '复制';
+            copyBtn.style.cssText = `
+                position: absolute;
+                top: 10px;
+                right: 10px;
+                background-color: rgba(0, 0, 0, 0.5);
+                color: white;
+                border: none;
+                border-radius: 4px;
+                padding: 6px 12px;
+                font-size: 12px;
+                cursor: pointer;
+                z-index: 10;
+                transition: background-color 0.2s;
+            `;
+            
+            // 添加复制功能
+            copyBtn.addEventListener('click', () => {
+                const code = pre.querySelector('code')?.textContent || pre.textContent;
+                navigator.clipboard.writeText(code).then(() => {
+                    copyBtn.innerText = '已复制';
+                    copyBtn.style.backgroundColor = '#4CAF50';
+                    setTimeout(() => {
+                        copyBtn.innerText = '复制';
+                        copyBtn.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+                    }, 2000);
+                }).catch(() => {
+                    copyBtn.innerText = '失败';
+                    copyBtn.style.backgroundColor = '#f44336';
+                    setTimeout(() => {
+                        copyBtn.innerText = '复制';
+                        copyBtn.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+                    }, 2000);
+                });
+            });
+            
+            // 添加复制按钮
+            pre.appendChild(copyBtn);
         });
         
         // 确保所有代码都被高亮
