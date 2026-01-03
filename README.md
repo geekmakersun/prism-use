@@ -150,7 +150,26 @@ document.addEventListener('DOMContentLoaded', function() {
            └── prism-autoloader.js
    ```
 
-### 步骤2：在主题中引入资源
+### 步骤2：使用 functions.php 自动配置
+主题已经包含了一个功能完整的 `functions.php` 文件，它会自动处理以下任务：
+
+1. **自动为代码块添加 class**：当在 WordPress 编辑器中使用代码块时，自动为 `<pre>` 标签添加 `line-numbers` 类，为 `<code>` 标签添加 `language-xxx` 类
+2. **加载 Prism.js 资源**：自动在后台编辑器和前台加载必要的 CSS 和 JavaScript 文件
+3. **配置语言路径**：自动设置 Prism.js 自动加载器的语言组件路径
+4. **添加复制功能**：为所有代码块自动添加复制按钮
+5. **初始化代码高亮**：确保所有代码块都能正确高亮显示
+
+### 步骤3：自定义配置（可选）
+如果你需要自定义配置，可以修改 `functions.php` 文件中的以下功能：
+
+1. **调整代码块样式**：修改 `style.css` 文件中的相关样式
+2. **扩展语言支持**：在 `assets/js/components/` 目录下添加更多语言组件
+3. **修改复制按钮样式**：在 `functions.php` 文件中调整复制按钮的 CSS 样式
+4. **修改自动加载器配置**：调整 `Prism.plugins.autoloader.languages_path` 的值
+
+### 步骤4：手动配置（备用方法）
+如果你更倾向于手动配置，可以按照以下步骤操作：
+
 在主题的`header.php`文件中添加：
 ```html
 <!-- 引入Prism.js CSS -->
@@ -165,8 +184,9 @@ document.addEventListener('DOMContentLoaded', function() {
 <script src="<?php echo get_template_directory_uri(); ?>/assets/js/prism-core.js"></script>
 <script src="<?php echo get_template_directory_uri(); ?>/assets/js/prism-line-numbers.js"></script>
 <script src="<?php echo get_template_directory_uri(); ?>/assets/js/prism-autoloader.js"></script>
+<script src="<?php echo get_template_directory_uri(); ?>/assets/js/prism-copy-to-clipboard.js"></script>
 
-<!-- 代码高亮初始化和复制功能 -->
+<!-- 代码高亮初始化 -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // 配置autoloader的语言路径
@@ -174,77 +194,15 @@ document.addEventListener('DOMContentLoaded', function() {
         Prism.plugins.autoloader.languages_path = '<?php echo get_template_directory_uri(); ?>/assets/js/components/';
     }
     
-    // 为所有代码块添加行号类
-    const preElements = document.querySelectorAll('pre[class*="language-"]');
-    preElements.forEach(pre => {
-        // 确保行号类存在
-        if (!pre.classList.contains('line-numbers')) {
-            pre.classList.add('line-numbers');
-        }
-        
-        // 确保有相对定位
-        pre.style.position = 'relative';
-        
-        // 移除旧的复制按钮
-        const oldButtons = pre.querySelectorAll('.copy-btn');
-        oldButtons.forEach(btn => btn.remove());
-        
-        // 创建复制按钮
-        const copyBtn = document.createElement('button');
-        copyBtn.className = 'copy-btn';
-        copyBtn.innerText = '复制';
-        copyBtn.style.cssText = `
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background-color: rgba(0, 0, 0, 0.5);
-            color: white;
-            border: none;
-            border-radius: 4px;
-            padding: 6px 12px;
-            font-size: 12px;
-            cursor: pointer;
-            z-index: 10;
-            transition: background-color 0.2s;
-        `;
-        
-        // 添加复制功能
-        copyBtn.addEventListener('click', () => {
-            const code = pre.querySelector('code')?.textContent || pre.textContent;
-            navigator.clipboard.writeText(code).then(() => {
-                copyBtn.innerText = '已复制';
-                copyBtn.style.backgroundColor = '#4CAF50';
-                setTimeout(() => {
-                    copyBtn.innerText = '复制';
-                    copyBtn.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
-                }, 2000);
-            }).catch(() => {
-                copyBtn.innerText = '失败';
-                copyBtn.style.backgroundColor = '#f44336';
-                setTimeout(() => {
-                    copyBtn.innerText = '复制';
-                    copyBtn.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
-                }, 2000);
-            });
-        });
-        
-        // 添加复制按钮
-        pre.appendChild(copyBtn);
-    });
-    
-    // 初始化Prism高亮，确保行号显示
+    // 初始化Prism高亮
     if (typeof Prism !== 'undefined') {
-        // 先移除旧的行号
-        document.querySelectorAll('.line-numbers-rows').forEach(row => row.remove());
-        
-        // 重新高亮所有代码块，确保行号生成
         Prism.highlightAll();
     }
 });
 </script>
 ```
 
-### 步骤3：在WordPress中使用代码块
+### 步骤5：在WordPress中使用代码块
 在WordPress编辑器中，使用以下格式添加代码块：
 ```
 ```语言
