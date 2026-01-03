@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>代码高亮使用演示</title>
+    <!-- 引入本地Prism.js CSS -->
+    <link rel="stylesheet" href="assets/css/prism.css">
+    <!-- 引入本地line-numbers插件的CSS样式 -->
+    <link rel="stylesheet" href="assets/css/prism-line-numbers.css">
+    <!-- 基础样式，确保页面正常显示 -->
+    <style>
+        /* 基础样式 */
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        /* 确保代码块有基本样式，防止高亮失效 */
+        pre[class*="language-"] {
+            position: relative;
+            background-color: #2d2d2d;
+            border-radius: 4px;
+            padding: 1em;
+            overflow: auto;
+            margin: 1em 0;
+        }
+        
+        code[class*="language-"] {
+            background-color: transparent;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 14px;
+        }
+        
+        /* 确保行号显示正常 */
+        pre.line-numbers {
+            padding-left: 3.8em !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>代码高亮测试</h1>
+        <p>以下是用户提供的代码块示例：</p>
+        
+        <!-- 用户提供的代码块示例 -->
+        <h3>Bash语言示例</h3>
+        <pre class="language-ini"><code class="language-ini">LANG=zh_CN.UTF-8
+LANGUAGE=zh_CN:zh
+LC_CTYPE=zh_CN.UTF-8
+LC_NUMERIC=zh_CN.UTF-8
+LC_TIME=zh_CN.UTF-8
+LC_COLLATE=zh_CN.UTF-8
+LC_MONETARY=zh_CN.UTF-8
+LC_MESSAGES=zh_CN.UTF-8
+LC_PAPER=zh_CN.UTF-8
+LC_NAME=zh_CN.UTF-8
+LC_ADDRESS=zh_CN.UTF-8
+LC_TELEPHONE=zh_CN.UTF-8
+LC_MEASUREMENT=zh_CN.UTF-8
+LC_IDENTIFICATION=zh_CN.UTF-8</code></pre>
+        
+        <h3>INI语言示例</h3>
+        <pre class="language-ini"><code class="language-ini">LANG=zh_CN.UTF-8
+LANGUAGE=zh_CN:zh
+LC_CTYPE=zh_CN.UTF-8
+LC_NUMERIC=zh_CN.UTF-8
+LC_TIME=zh_CN.UTF-8
+LC_COLLATE=zh_CN.UTF-8
+LC_MONETARY=zh_CN.UTF-8
+LC_MESSAGES=zh_CN.UTF-8
+LC_PAPER=zh_CN.UTF-8
+LC_NAME=zh_CN.UTF-8
+LC_ADDRESS=zh_CN.UTF-8
+LC_TELEPHONE=zh_CN.UTF-8
+LC_MEASUREMENT=zh_CN.UTF-8
+LC_IDENTIFICATION=zh_CN.UTF-8</code></pre>
+        
+        <h2>其他语言测试</h2>
+        
+        <!-- JavaScript代码示例 -->
+        <pre class="language-javascript"><code class="language-javascript">function hello() {
+    console.log("Hello, World!");
+    return "Hello";
+}</code></pre>
+        
+        <!-- PHP代码示例 -->
+        <pre class="language-php"><code class="language-php">&lt;?php
+echo "Hello, World!";
+?&gt;</code></pre>
+    </div>
+    
+    <!-- 引入本地Prism.js JS -->
+    <script src="assets/js/prism-core.js"></script>
+    <script src="assets/js/prism-line-numbers.js"></script>
+    <script src="assets/js/prism-autoloader.js"></script>
+    
+    <!-- 代码高亮初始化和复制功能 -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 配置autoloader的语言路径
+            if (Prism.plugins && Prism.plugins.autoloader) {
+                Prism.plugins.autoloader.languages_path = 'https://cdnjs.cloudflare.com/ajax/libs/prism/1.30.0/components/';
+            }
+            
+            // 为所有代码块添加行号类
+            const preElements = document.querySelectorAll('pre[class*="language-"]');
+            preElements.forEach(pre => {
+                // 确保行号类存在
+                if (!pre.classList.contains('line-numbers')) {
+                    pre.classList.add('line-numbers');
+                }
+                
+                // 确保有相对定位
+                pre.style.position = 'relative';
+                
+                // 移除旧的复制按钮
+                const oldButtons = pre.querySelectorAll('.copy-btn');
+                oldButtons.forEach(btn => btn.remove());
+                
+                // 创建复制按钮
+                const copyBtn = document.createElement('button');
+                copyBtn.className = 'copy-btn';
+                copyBtn.innerText = '复制';
+                copyBtn.style.cssText = `
+                    position: absolute;
+                    top: 10px;
+                    right: 10px;
+                    background-color: rgba(0, 0, 0, 0.5);
+                    color: white;
+                    border: none;
+                    border-radius: 4px;
+                    padding: 6px 12px;
+                    font-size: 12px;
+                    cursor: pointer;
+                    z-index: 10;
+                    transition: background-color 0.2s;
+                `;
+                
+                // 添加复制功能
+                copyBtn.addEventListener('click', () => {
+                    const code = pre.querySelector('code')?.textContent || pre.textContent;
+                    navigator.clipboard.writeText(code).then(() => {
+                        copyBtn.innerText = '已复制';
+                        copyBtn.style.backgroundColor = '#4CAF50';
+                        setTimeout(() => {
+                            copyBtn.innerText = '复制';
+                            copyBtn.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+                        }, 2000);
+                    }).catch(() => {
+                        copyBtn.innerText = '失败';
+                        copyBtn.style.backgroundColor = '#f44336';
+                        setTimeout(() => {
+                            copyBtn.innerText = '复制';
+                            copyBtn.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+                        }, 2000);
+                    });
+                });
+                
+                // 添加复制按钮
+                pre.appendChild(copyBtn);
+            });
+            
+            // 初始化Prism高亮，确保行号显示
+            if (typeof Prism !== 'undefined') {
+                // 先移除旧的行号
+                document.querySelectorAll('.line-numbers-rows').forEach(row => row.remove());
+                
+                // 重新高亮所有代码块，确保行号生成
+                Prism.highlightAll();
+            }
+        });
+    </script>
+</body>
+</html>

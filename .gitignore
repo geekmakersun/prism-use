@@ -1,0 +1,24 @@
+# 编辑器配置文件
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 日志文件
+*.log
+
+# 临时文件
+*.tmp
+*.temp
+
+# 操作系统文件
+.DS_Store
+Thumbs.db
+
+# Node.js相关
+node_modules/
+npm-debug.log
+
+# TraeAI相关
+.trae/
